@@ -13,4 +13,8 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5433/test_bank?sslmode=disable" -verbose down
 
+test:
+# ./...で全てのユニットテストを指定
+	go test -v -cover ./...
+
 .PHONY: postgres createdb dropdb makeup makedown
