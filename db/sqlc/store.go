@@ -68,10 +68,7 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 
-		txName := ctx.Value(txKey)
-
 		// Transfer作成
-		fmt.Println(txName, "create transfer")
 		result.Transfer, err = q.CreateTransfer(ctx, CreateTransferParams{
 			FromAccountID: arg.FromAccountID,
 			ToAccountID:   arg.ToAccountID,
@@ -82,7 +79,6 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 		}
 
 		// Entry作成
-		fmt.Println(txName, "create fromEntry")
 		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.FromAccountID,
 			// お金が出ていくのでマイナス
@@ -92,7 +88,6 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 
-		fmt.Println(txName, "create toEntry")
 		result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
 			AccountID: arg.ToAccountID,
 			// お金が入ってくるのでマイナス
@@ -102,32 +97,18 @@ func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (Trans
 			return err
 		}
 
-		// Account 作成
-		// Update account's balance
-		fmt.Println(txName, "get fromAccount")
-		account1, err := q.GetAccountForUpdate(ctx, arg.FromAccountID)
-		if err != nil {
-			return err
-		}
-
-		result.FromAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
-			ID:      arg.FromAccountID,
-			Balance: account1.Balance - arg.Amount,
+		result.FromAccount, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+			ID: arg.FromAccountID,
+			// FromAccountからお金が移動するのでマイナス
+			Amount: -arg.Amount,
 		})
 		if err != nil {
 			return err
 		}
 
-		fmt.Println(txName, "get toAccount")
-		account2, err := q.GetAccountForUpdate(ctx, arg.ToAccountID)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println(txName, "update toAccount")
-		result.ToAccount, err = q.UpdateAccount(ctx, UpdateAccountParams{
-			ID:      arg.ToAccountID,
-			Balance: account2.Balance + arg.Amount,
+		result.ToAccount, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
+			ID:     arg.ToAccountID,
+			Amount: arg.Amount,
 		})
 		if err != nil {
 			return err
