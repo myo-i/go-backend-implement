@@ -35,6 +35,11 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
 
+    - name: Install golang-migrate
+    # マルチラインコマンド
+      run: |
+        scoop install migrate
+
     - name: Run Migration
       uses: migrate -path db/migration -database "postgresql://root:secret@localhost:5433/test_bank?sslmode=disable" -verbose up
 
