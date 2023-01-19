@@ -8,6 +8,22 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+        # posgreのドキュメント
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: test_bank
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
 
     - name: Set up Go 1.x
@@ -18,6 +34,9 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+
+    - name: Run Migration
+      uses: migrate -path db/migration -database "postgresql://root:secret@localhost:5433/test_bank?sslmode=disable" -verbose up
 
     - name: Test
       run: go test -v -cover ./...
