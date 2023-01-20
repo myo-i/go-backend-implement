@@ -38,8 +38,9 @@ jobs:
     - name: Install golang-migrate
     # マルチラインコマンド
       run: |
-        scoop install migrate
-
+        curl -L https://github.com/golang-migrate/migrate/releases/download/v4.14.1/migrate.linux-amd64.tar.gz | tar xvz
+        sudo mv migrate.linux-amd64 /usr/bin/migrate
+        which migrate
     - name: Run Migration
       uses: migrate -path db/migration -database "postgresql://root:secret@localhost:5433/test_bank?sslmode=disable" -verbose up
 
