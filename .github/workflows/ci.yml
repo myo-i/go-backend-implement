@@ -1,6 +1,9 @@
 name: unit-tests
 
-on: [push, pull_request]
+on: push:
+      branches: [ master ]
+    pull_request:
+      branches: [ master ]
 
 jobs:
 
@@ -42,6 +45,7 @@ jobs:
         echo "deb https://packagecloud.io/golang-migrate/migrate/ubuntu/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/migrate.list
         sudo apt-get update
         sudo apt-get install -y migrate
+
     - name: Run Migration
       uses: migrate -path db/migration -database "postgresql://root:secret@localhost:5433/test_bank?sslmode=disable" -verbose up
 
