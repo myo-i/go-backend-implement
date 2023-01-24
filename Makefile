@@ -16,8 +16,17 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5433/test_bank?sslmode=disable" -verbose down
 
+sqlc:
+	sqlc generate
+
 test:
 # ./...で全てのユニットテストを指定
 	go test -v -cover ./...
 
-.PHONY: postgres createdb dropdb makeup makedown
+server:
+	go run main.go
+
+mock:
+	mockgen -package mockdb -destination db/mock/store.go go-backend/db/sqlc Store
+
+.PHONY: postgres createdb dropdb makeup makedown sqlc test server mock
