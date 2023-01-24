@@ -4,6 +4,8 @@ import (
 	sqlc "go-backend/db/sqlc"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 type Server struct {
@@ -16,6 +18,11 @@ func NewServer(store sqlc.Store) *Server {
 	server := &Server{store: store}
 	router := gin.Default()
 
+	// ginが使用している現在のバリデーターエンジンを取得
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("currency", validCurrency)
+	}
+
 	router.POST("/accounts", server.createAccount)
 	// idに合致したアカウントの情報全てを1度で取得
 	router.GET("/accounts/:id", server.getAccount)
@@ -25,6 +32,8 @@ func NewServer(store sqlc.Store) *Server {
 	// そしてクエリ(accounts?id=1)からパラメータを取得するためパスはaccountsとなる
 	// ハンドラーの名前はlistAccountでなければならない
 	router.GET("/accounts", server.listAccount)
+
+	router.POST("/transfers", server.createTransfer)
 
 	server.router = router
 	return server
