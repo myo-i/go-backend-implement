@@ -38,6 +38,6 @@ WHERE id = $1
 RETURNING *;
 
 
--- name: DleteAccount :exec
+-- name: DeleteAccount :exec
 DELETE FROM accounts 
 WHERE id = $1;
