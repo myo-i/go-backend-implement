@@ -11,8 +11,12 @@ import (
 )
 
 func createRandomAccount(t *testing.T) Account {
+	user := createRandomUser(t)
+
+	// 作成されたユーザーと紐づけるためにuser.UsernameをOwnerに入れる
+	// でないと外部キー制約に違反しているというエラーがでる
 	arg := CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
@@ -69,7 +73,7 @@ func TestUpdateAccount(t *testing.T) {
 
 func TestDeleteAccount(t *testing.T) {
 	account1 := createRandomAccount(t)
-	err := testQueries.DleteAccount(context.Background(), account1.ID)
+	err := testQueries.DeleteAccount(context.Background(), account1.ID)
 	require.NoError(t, err)
 
 	account2, err := testQueries.GetAccount(context.Background(), account1.ID)

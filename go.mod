@@ -2,14 +2,16 @@ module go-backend
 
 go 1.19
 
-require github.com/lib/pq v1.10.7
+require (
+	github.com/go-playground/validator/v10 v10.11.1
+	github.com/lib/pq v1.10.7
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.11.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
