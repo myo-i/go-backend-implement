@@ -23,6 +23,7 @@ func NewServer(store sqlc.Store) *Server {
 		v.RegisterValidation("currency", validCurrency)
 	}
 
+	router.POST("/users", server.createUser)
 	router.POST("/accounts", server.createAccount)
 	// idに合致したアカウントの情報全てを1度で取得
 	router.GET("/accounts/:id", server.getAccount)
