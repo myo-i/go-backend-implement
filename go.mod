@@ -4,6 +4,8 @@ go 1.19
 
 require (
 	github.com/go-playground/validator/v10 v10.11.1
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.7
 )
 
@@ -44,5 +46,5 @@ require (
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.1
 	github.com/ugorji/go/codec v1.2.8 // indirect
-	golang.org/x/crypto v0.5.0 // indirect
+	golang.org/x/crypto v0.5.0
 )
