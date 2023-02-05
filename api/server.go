@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
 	sqlc "go-backend/db/sqlc"
+	"go-backend/token"
+	"go-backend/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -9,25 +12,43 @@ import (
 )
 
 type Server struct {
-	store  sqlc.Store
-	router *gin.Engine
+	config     util.Config
+	store      sqlc.Store
+	tokenMaker token.Maker
+	router     *gin.Engine
 }
 
 // create a new server and setup routing
-func NewServer(store sqlc.Store) *Server {
-	server := &Server{store: store}
-	router := gin.Default()
+func NewServer(config util.Config, store sqlc.Store) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %v", err)
+	}
+
+	server := &Server{
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
+	}
 
 	// ginが使用している現在のバリデーターエンジンを取得
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", validCurrency)
 	}
 
+	server.setupRouter()
+	return server, nil
+}
+
+func (server *Server) setupRouter() {
+	router := gin.Default()
+
 	router.POST("/users", server.createUser)
+	router.POST("/users/login", server.loginUser)
+
 	router.POST("/accounts", server.createAccount)
 	// idに合致したアカウントの情報全てを1度で取得
 	router.GET("/accounts/:id", server.getAccount)
-
 	// uriに1を含めただけで全てを取得すると重くなる可能性があるので
 	// クエリパラメータで分割して取得することで軽くする狙い
 	// そしてクエリ(accounts?id=1)からパラメータを取得するためパスはaccountsとなる
@@ -37,7 +58,6 @@ func NewServer(store sqlc.Store) *Server {
 	router.POST("/transfers", server.createTransfer)
 
 	server.router = router
-	return server
 }
 
 // run HTTP server on a specific address
